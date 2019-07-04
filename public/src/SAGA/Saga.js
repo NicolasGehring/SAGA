@@ -5,10 +5,11 @@ function getId() {
   return id++;
 }
 export class Saga {
-  constructor(task, compensation) {
+  constructor(task, compensation, description) {
     this.task = task;
     this.compensation = compensation;
     this.id = getId();
+    this.description = description;
   }
 
   async executeTask() {

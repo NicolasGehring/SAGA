@@ -1,11 +1,14 @@
 import { SagaLog } from "./SagaLogs.js";
-
+import { TransactionStatus } from "./transactionStatus.js";
 export class SagaExecutionCoordiantor {
   //The execution coordinator get's an array of Saga objects which need to be performed
   //Each object has a task and a rollback action
   constructor(sagas) {
     this.sagas = sagas;
+    //We initialize our log to visualize the intern of the transaction
     this.log = new SagaLog();
+    //We initialize the status to show the current status of each transaction
+    this.transactionStatus = new TransactionStatus(sagas);
     //The index keeps track about the currently executed Saga
     this.index = 0;
   }
@@ -22,12 +25,17 @@ export class SagaExecutionCoordiantor {
       try {
         //STEP 2: We iterate over every saga which was given to us and log there beginning
         this.log.add(`Started Saga with ID ${saga.id} `);
+        this.transactionStatus.updateStatus(saga, "pending");
         const result = await saga.executeTask();
-        this.log.add(
-          `Saga with ID ${saga.id} completed with ${JSON.stringify(result)}`
-        );
+        this.transactionStatus.updateStatus(saga, "finished");
+        //We show the result of the query
+        this.transactionStatus.updateResolution(saga, JSON.stringify(result));
+        this.log.add(`Saga with ID ${saga.id} completed with `);
       } catch (err) {
         this.log.add(`Saga with ID ${saga.id} Failed`);
+        this.transactionStatus.updateStatus(saga, "failed");
+        this.transactionStatus.updateResolution(saga, err);
+
         //We save that an error occured during execution
         failure = true;
         //We lower the index to the last succesfull SAGA
@@ -45,8 +53,11 @@ export class SagaExecutionCoordiantor {
         try {
           //STEP 4: We iterate over every saga which needs to be compensated
           this.log.add(`Started Saga Rollback with ID ${saga.id} `);
-          await saga.executeCompensation();
+          this.transactionStatus.updateStatus(saga, "compensating");
+          const result = await saga.executeCompensation();
+          this.transactionStatus.updateResolution(saga, JSON.stringify(result));
           this.log.add(`Saga with ID ${saga.id} compensated `);
+          this.transactionStatus.updateStatus(saga, "finished");
         } catch (err) {
           this.log.add(`Saga with ID ${saga.id} Failed during compensation`);
         }
