@@ -5,13 +5,13 @@ export class mockApi {
   }
   //This function returns a function which will return a Promise which will either be
   //succsessfull or fail debending on the initalisation of the mockAPI object
-  generateFunction() {
+  generateFunction(responseObject) {
     if (this.success) {
       return async () => {
         //This set's a non-blocking timeout for the function
         await new Promise(resolve => setTimeout(resolve, this.delay));
         var response = new Promise(function(resolve, reject) {
-          resolve({ name: "Nicolas", surname: "Gehring" });
+          resolve(responseObject);
         });
         return response;
       };
@@ -25,5 +25,16 @@ export class mockApi {
         return response;
       };
     }
+  }
+
+  generateRollback(responseObject) {
+    return async () => {
+      //This set's a non-blocking timeout for the function
+      await new Promise(resolve => setTimeout(resolve, this.delay));
+      var response = new Promise(function(resolve, reject) {
+        resolve(responseObject);
+      });
+      return response;
+    };
   }
 }

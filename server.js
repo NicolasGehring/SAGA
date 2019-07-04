@@ -20,4 +20,9 @@ app.get("/working", (req, res) => {
   res.render("workingSaga.html");
 });
 
+//We render the working Saga html
+app.get("/failing", (req, res) => {
+  res.render("failingSaga.html");
+});
+
 app.listen(port, () => console.log(`Webapp running on Port: ${port}!`));

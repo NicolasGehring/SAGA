@@ -6,50 +6,54 @@ export class SagaExecutionCoordiantor {
   constructor(sagas) {
     this.sagas = sagas;
     this.log = new SagaLog();
+    //The index keeps track about the currently executed Saga
+    this.index = 0;
   }
 
-  run() {
+  async run() {
     //Depending on this variable we decide if we have to execute the rollback action
     //If any Saga fails the boolean is true and all rollback actions get performed
     var failure = false;
-    //Failure ID is saved because the sage which failed doesn't need to be compensated
-    var failureID;
     //STEP 1: We start the Saga and log the beginning of the SAGA
     this.log.add("Started SAGA execution");
 
-    //important the callbackfunction has to be async otherwise await is not working
-    this.sagas.forEach(async saga => {
+    while (this.index < this.sagas.length && !failure) {
+      const saga = this.sagas[this.index];
       try {
         //STEP 2: We iterate over every saga which was given to us and log there beginning
         this.log.add(`Started Saga with ID ${saga.id} `);
         const result = await saga.executeTask();
-        this.log.add(`Saga with ID ${saga.id} completed with ${result}`);
+        this.log.add(
+          `Saga with ID ${saga.id} completed with ${JSON.stringify(result)}`
+        );
       } catch (err) {
         this.log.add(`Saga with ID ${saga.id} Failed`);
         //We save that an error occured during execution
         failure = true;
-        //TODO: make this an array
-        failureID = saga.id;
+        //We lower the index to the last succesfull SAGA
+        this.index--;
+        break;
       }
-    });
-
-    //Depending on the errors we trigger the rollback proccess
+      //We execute the next Sage in our list
+      this.index++;
+    }
+    //STEP3: Check if an error occured and perform accordingly
+    //From the last succesful Saga till the first one we perform the rollback action
     if (failure) {
-      this.sagas.forEach(async saga => {
-        //We don't rollback the Saga which failed
-        //if (saga.id == failureID) {continue}
+      while (this.index >= 0) {
+        const saga = this.sagas[this.index];
         try {
-          //STEP 2: We iterate over every saga which was given to us and log there beginning
-          this.log.add(`Started Compensating Saga with ID ${saga.id} `);
-          const result = await saga.executeCompensation();
-          this.log.add(
-            `Saga with ID ${saga.id} was correctly compensated`,
-            result
-          );
+          //STEP 4: We iterate over every saga which needs to be compensated
+          this.log.add(`Started Saga Rollback with ID ${saga.id} `);
+          await saga.executeCompensation();
+          this.log.add(`Saga with ID ${saga.id} compensated `);
         } catch (err) {
           this.log.add(`Saga with ID ${saga.id} Failed during compensation`);
         }
-      });
+        //We execute the next Sage in our list
+        this.index--;
+      }
     }
+    this.log.add("SAGA Execution complete");
   }
 }

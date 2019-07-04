@@ -13,10 +13,25 @@
   </head>
   <body>
     <div class="titleContainer">
-      <h1>SAGA</h1>
+      <h1>SAGA Pattern</h1>
     </div>
-    <div class="log"></div>
-    <div class="nextOperation"></div>
+    <div class="linkContainer"></div>
+    <div class="buttons"></div>
+    <p class="description">
+      A Saga pattern is a way of representing a long-running transaction. What
+      we do is we have multiple requests, managed by a saga. These requests can
+      be run in sequence or in parallel. When all the requests are complete and
+      have all completed successfully then only we say that our saga is
+      completed. But what happens if one request(R1) finished successfully but
+      another request(R2) failed, what to do now? How to deal with this failure?
+      The answer to that lies within the implementation of the saga pattern. So
+      what happens is, in saga each request is paired up with a compensating
+      action. If a request fails compensating actions are executed for all the
+      completed steps in that request. Once such a scenario occurs we do not
+      complete the saga, instead, we fail the saga, and if the compensating
+      action also failed then we retry the compensating action till the time it
+      succeeds. (Src: https://blog.knoldus.com)
+    </p>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>

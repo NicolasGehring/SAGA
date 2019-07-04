@@ -17,29 +17,11 @@ const task2 = api2.generateFunction({ hike: "Waterfal Hike", id: "124652" });
 const rollback2 = api2.generateRollback("Hike 124652 was canceled");
 const saga2 = new Saga(task2, rollback2);
 
-const api3 = new mockApi(true);
-const task3 = api3.generateFunction({
-  payment: "103,54€",
-  id: "124652",
-  state: "succsess"
-});
+const api3 = new mockApi(false);
+const task3 = api3.generateFunction({ payment: "103,54€", id: "124652" });
 const rollback3 = api3.generateRollback("Payment was canceled");
 const saga3 = new Saga(task3, rollback3);
 
-const api4 = new mockApi(true);
-const task4 = api4.generateFunction({ test: "test" });
-const rollback4 = api4.generateRollback("Payment was canceled");
-const saga4 = new Saga(task4, rollback4);
-const sagaArray = [
-  saga,
-  saga2,
-  saga3,
-  saga4,
-  saga4,
-  saga4,
-  saga4,
-  saga4,
-  saga4
-];
+const sagaArray = [saga, saga2, saga3];
 var SEC = new SagaExecutionCoordiantor(sagaArray);
 SEC.run();

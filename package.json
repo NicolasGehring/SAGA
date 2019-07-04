@@ -1,5 +1,5 @@
 {
-  "name": "choosify",
+  "name": "saga",
   "version": "1.0.0",
   "description": "Simple JavaScript SAGA Implementation\"",
   "main": "index.js",
