@@ -13,6 +13,7 @@ export class Saga {
   }
 
   async executeTask() {
+    
     return await this.task();
   }
   async executeCompensation() {

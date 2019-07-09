@@ -26,11 +26,13 @@ export class SagaExecutionCoordiantor {
         //STEP 2: We iterate over every saga which was given to us and log there beginning
         this.log.add(`Started Saga with ID ${saga.id} `);
         this.transactionStatus.updateStatus(saga, "pending");
+
         const result = await saga.executeTask();
+
         this.transactionStatus.updateStatus(saga, "finished");
         //We show the result of the query
         this.transactionStatus.updateResolution(saga, JSON.stringify(result));
-        this.log.add(`Saga with ID ${saga.id} completed with `);
+        this.log.add(`Saga with ID ${saga.id} completed`);
       } catch (err) {
         this.log.add(`Saga with ID ${saga.id} Failed`);
         this.transactionStatus.updateStatus(saga, "failed");
@@ -48,23 +50,31 @@ export class SagaExecutionCoordiantor {
     //STEP3: Check if an error occured and perform accordingly
     //From the last succesful Saga till the first one we perform the rollback action
     if (failure) {
+      this.log.add(`Starting Rollback of SAGA`);
       while (this.index >= 0) {
         const saga = this.sagas[this.index];
         try {
           //STEP 4: We iterate over every saga which needs to be compensated
           this.log.add(`Started Saga Rollback with ID ${saga.id} `);
           this.transactionStatus.updateStatus(saga, "compensating");
+          //Execute the rollback operation
           const result = await saga.executeCompensation();
+
           this.transactionStatus.updateResolution(saga, JSON.stringify(result));
           this.log.add(`Saga with ID ${saga.id} compensated `);
-          this.transactionStatus.updateStatus(saga, "finished");
+          this.transactionStatus.updateStatus(saga, "compensated");
         } catch (err) {
-          this.log.add(`Saga with ID ${saga.id} Failed during compensation`);
+          //while i
+          this.log.add(`Saga with ID ${saga.id} Failed during compensation.`);
+          //Continue forces that the index is not decremented. Therfore the compensating action
+          //is retried
+          continue;
         }
         //We execute the next Sage in our list
         this.index--;
       }
     }
+
     this.log.add("SAGA Execution complete");
   }
 }

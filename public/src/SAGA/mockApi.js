@@ -1,10 +1,11 @@
 export class mockApi {
   constructor(success) {
-    this.delay = Math.random() * 5000;
+    //We add +0.2 otherwise it is possible that some transactions are too quick
+    this.delay = (Math.random() + 0.2) * 4000;
     this.success = success;
   }
   //This function returns a function which will return a Promise which will either be
-  //succsessfull or fail debending on the initalisation of the mockAPI object
+  //succsessfull or fail depending on the initalisation of the mockAPI object
   generateFunction(responseObject) {
     if (this.success) {
       return async () => {

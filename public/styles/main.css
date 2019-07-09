@@ -122,13 +122,17 @@ td[status="pending"] {
 td[status="failed"] {
   background-color: rgb(200, 21, 21);
 }
-td[status="finished"] {
+td[status="finished"],
+td[status="compensated"] {
   background-color: rgb(47, 173, 15);
 }
 td[status="compensating"] {
-  background-color: rgb(137, 44, 212);
+  background-color: rgb(184, 116, 240);
 }
 /* Size of the resolution entry */
 td[resolution] {
   width: 500px;
+}
+td[status] {
+  width: 100px;
 }

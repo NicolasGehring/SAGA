@@ -15,6 +15,7 @@ const saga = new Saga(task1, rollback1, "Book Hotel");
 const api2 = new mockApi(true);
 const task2 = api2.generateFunction({ hike: "Waterfal Hike", id: "124652" });
 const rollback2 = api2.generateRollback("Hike 124652 was canceled");
+
 const saga2 = new Saga(task2, rollback2, "Book Hike");
 
 const api3 = new mockApi(false);

@@ -50,7 +50,6 @@ export class TransactionStatus {
     //in order to change the status we query the respective element
     //And change the status attribute of the table entry. Css will color it differently
     var tableEntry = document.querySelector(`tr[id='${saga.id}'] > td[status]`);
-    console.log("entry", tableEntry);
     switch (value) {
       case "pending":
         tableEntry.setAttribute("status", "pending");
@@ -69,6 +68,10 @@ export class TransactionStatus {
       case "compensating":
         tableEntry.setAttribute("status", "compensating");
         tableEntry.innerHTML = "rollback";
+        break;
+      case "compensated":
+        tableEntry.setAttribute("status", "compensated");
+        tableEntry.innerHTML = "compensated";
 
         break;
       default:
